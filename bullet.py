@@ -11,6 +11,9 @@ class Bullet(pygame.sprite.Sprite):
         self.rect = self.surf.get_rect(center=(posX, posY))
         self.vel = 4
 
+    def draw(self, screen):
+        screen.blit(self.surf, self.rect)
+
     def update(self):
         self.rect.move_ip(self.vel, 0)
         if self.rect.right < 0:

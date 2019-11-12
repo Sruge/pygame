@@ -14,19 +14,41 @@ from pygame.locals import (
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, posX, posY, velX, velY):
+    def __init__(self, lifes, posX, posY, velX, velY):
         super(Player, self).__init__()
+        self.lifes = lifes
         self.velX = velX
         self.velY = velY
+        self.invulnerable = 0
         self.surf = pygame.image.load("rose.png").convert()
         self.surf.set_colorkey((0, 0, 0), RLEACCEL)
         self.rect = self.surf.get_rect(center=(posX, posY))
         self.airtime = 0
         self.bullets = pygame.sprite.Group()
 
+    def draw(self, screen):
+        if self.invulnerable > 0:
+            surf = pygame.image.load("hirsch.png").convert()
+            surf.set_colorkey((0, 0, 0), RLEACCEL)
+            rect = surf.get_rect(
+                center=((self.rect.left + self.rect.right) // 2, (self.rect.top + self.rect.bottom) // 2))
+            screen.blit(surf, rect)
+        else:
+            screen.blit(self.surf, self.rect)
+
     def fire(self, size):
         bullet = Bullet(size, self.rect.left + 23, self.rect.bottom - 32)
         self.bullets.add(bullet)
+
+    def lose_life(self):
+        if self.invulnerable <= 0:
+            if self.lifes <= 1:
+                self.lifes = 0
+                self.kill()
+            else:
+                self.lifes -= 1
+                self.invulnerable = 30
+                self.velX = 0
 
     def update(self, pressed_keys):
         self.airtime += 0.2
@@ -55,3 +77,6 @@ class Player(pygame.sprite.Sprite):
             self.rect.bottom = 600
             self.velY = -self.velY * 0.2
             self.airtime = 0
+
+        if self.invulnerable > 0:
+            self.invulnerable -= 1
