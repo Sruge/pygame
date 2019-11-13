@@ -20,7 +20,7 @@ class Player(pygame.sprite.Sprite):
         self.velX = velX
         self.velY = velY
         self.invulnerable = 0
-        self.surf = pygame.image.load("rose.png").convert()
+        self.surf = pygame.Surface((25, 25))
         self.surf.set_colorkey((0, 0, 0), RLEACCEL)
         self.rect = self.surf.get_rect(center=(posX, posY))
         self.airtime = 0
@@ -34,7 +34,8 @@ class Player(pygame.sprite.Sprite):
                 center=((self.rect.left + self.rect.right) // 2, (self.rect.top + self.rect.bottom) // 2))
             screen.blit(surf, rect)
         else:
-            screen.blit(self.surf, self.rect)
+            surf = pygame.image.load("rose.png")
+            screen.blit(surf, self.rect)
 
     def fire(self, size):
         bullet = Bullet(size, self.rect.left + 23, self.rect.bottom - 32)
