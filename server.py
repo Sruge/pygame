@@ -1,7 +1,8 @@
 import socket
 from _thread import *
 import pickle
-from player import Player
+from information import Information
+import random
 
 server = "192.168.122.1"
 port = 5555
@@ -13,33 +14,37 @@ try:
 except socket.error as e:
     str(e)
 
-s.listen()
+s.listen(4)
 print("Waiting for a connection, Server Started")
+players = []
 
-players = [Player(5, 50, 50, 0, 0), Player(5, 1230, 50, 0, 0)]
 
-
-def threaded_client(conn, player):
-    conn.send(pickle.dumps(players[player]))
+def threaded_client(conn, count):
+    global players
+    # info = Information(count, random.randint(40, 760), random.randint(40, 560))
+    # players.append(info)
+    info = Information(count, random.randint(50, 500), random.randint(50, 300))
+    print("sending {}".format(info.count))
+    conn.send(pickle.dumps(info))
+    players.append(info)
+    print(info.count, info.posX, info.posY)
     reply = ""
     while True:
         try:
             data = pickle.loads(conn.recv(2048))
-            players[player] = data
-
+            #players[data.count] = data
+            print(players)
             if not data:
                 print("Disconnected")
                 break
             else:
-                if player == 1:
-                    reply = players[0]
-                else:
-                    reply = players[1]
-                print("Received: ", reply)
-                print("Sending : ", reply)
+                reply = pickle.dumps(players)
+                #print("Received: ", data)
+                #print("Sending : ", reply)
 
             conn.sendall(pickle.dumps(reply))
         except:
+            print("breaking")
             break
 
     print("Lost connection")
@@ -50,6 +55,5 @@ current_player = 0
 while True:
     conn, addr = s.accept()
     print("Connected to:", addr)
-
     start_new_thread(threaded_client, (conn, current_player))
     current_player += 1

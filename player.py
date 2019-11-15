@@ -1,6 +1,6 @@
 import pygame
 from bullet import Bullet
-
+from information import Information
 from pygame.locals import (
     RLEACCEL,
     K_UP,
@@ -14,28 +14,33 @@ from pygame.locals import (
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, lifes, posX, posY, velX, velY):
+    def __init__(self, info, lifes, velX, velY):
         super(Player, self).__init__()
+        self.id = info.count
         self.lifes = lifes
+        self.posX = info.posX
+        self.posY = info.posY
         self.velX = velX
         self.velY = velY
+        self.rect = pygame.Rect(self.posX, self.posY, 34, 60)
         self.invulnerable = 0
-        self.surf = pygame.Surface((25, 25))
-        self.surf.set_colorkey((0, 0, 0), RLEACCEL)
-        self.rect = self.surf.get_rect(center=(posX, posY))
         self.airtime = 0
         self.bullets = pygame.sprite.Group()
+
+    def get_info(self):
+        return Information(self.id, self.posX, self.posY)
 
     def draw(self, screen):
         if self.invulnerable > 0:
             surf = pygame.image.load("hirsch.png").convert()
             surf.set_colorkey((0, 0, 0), RLEACCEL)
-            rect = surf.get_rect(
-                center=((self.rect.left + self.rect.right) // 2, (self.rect.top + self.rect.bottom) // 2))
+            rect = surf.get_rect(center=(self.posX, self.posY))
             screen.blit(surf, rect)
         else:
-            surf = pygame.image.load("rose.png")
-            screen.blit(surf, self.rect)
+            surf = pygame.image.load("rose.png").convert()
+            surf.set_colorkey((0, 0, 0), RLEACCEL)
+            rect = surf.get_rect(center=(self.posX, self.posY))
+            screen.blit(surf, rect)
 
     def fire(self, size):
         bullet = Bullet(size, self.rect.left + 23, self.rect.bottom - 32)
@@ -51,9 +56,12 @@ class Player(pygame.sprite.Sprite):
                 self.invulnerable = 30
                 self.velX = 0
 
-    def update(self, pressed_keys):
-        self.airtime += 0.2
+    def update(self):
+        pressed_keys = pygame.key.get_pressed()
+        #self.airtime += 0.2
         self.velX *= 0.9
+        self.posX = self.posX + self.velX
+        self.posY = self.posY + self.velY
         self.rect.move_ip(self.velX, self.velY)
         if pressed_keys[K_UP]:
             self.velY -= 2
@@ -68,8 +76,8 @@ class Player(pygame.sprite.Sprite):
         if self.rect.left < 0:
             self.rect.left = 0
             self.velX = -self.velX * 0.2
-        if self.rect.right > 1280:
-            self.rect.right = 1280
+        if self.rect.right > 800:
+            self.rect.right = 800
             self.velX = -self.velX * 0.2
         if self.rect.top < 0:
             self.rect.top = 0
