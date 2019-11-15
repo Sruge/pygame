@@ -18,7 +18,6 @@ class Network:
             self.client.connect(self.addr)
             print("Could connect")
             data = (pickle.loads(self.client.recv(2048)))
-            print(data.posX)
             return data
         except:
             print("Could not connect")

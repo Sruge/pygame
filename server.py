@@ -24,27 +24,25 @@ def threaded_client(conn, count):
     # info = Information(count, random.randint(40, 760), random.randint(40, 560))
     # players.append(info)
     info = Information(count, random.randint(50, 500), random.randint(50, 300))
-    print("sending {}".format(info.count))
+    print("sending {}".format(info.id))
     conn.send(pickle.dumps(info))
     players.append(info)
-    print(info.count, info.posX, info.posY)
+    print(info.id, info.posX, info.posY)
     reply = ""
     while True:
         try:
             data = pickle.loads(conn.recv(2048))
-            #players[data.count] = data
-            print(players)
+            players[data.id] = data
             if not data:
                 print("Disconnected")
                 break
             else:
-                reply = pickle.dumps(players)
-                #print("Received: ", data)
+                reply = players
+                print("Received: ", data)
                 #print("Sending : ", reply)
 
             conn.sendall(pickle.dumps(reply))
         except:
-            print("breaking")
             break
 
     print("Lost connection")

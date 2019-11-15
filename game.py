@@ -16,9 +16,7 @@ class Game:
         self.font = pygame.font.SysFont("comicsansms", 28)
         self.clock = pygame.time.Clock()
         self.network = Network()
-        print("zack")
         self.player = Player(self.network.playerInfo, 5, 0, 0)
-        print("zack")
         self.players = pygame.sprite.Group()
         self.playersIds = []
         self.players.add(self.player)
@@ -46,16 +44,13 @@ class Game:
                     running = False
             self.player.update()
             info = self.player.get_info()
-            data = pickle.loads(self.network.send(pickle.dumps(info)))
-            #print(data)
+            data = (self.network.send(info))
             self.enemies = []
             for info in data:
-                if info.count == self.player.id:
+                if info.id == self.player.id:
                     pass
                 else:
                     self.enemies.append(Player(info, 5, 1, 0))
-
-            # print(data)
             self.draw()
 
         pygame.quit()

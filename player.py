@@ -16,13 +16,15 @@ from pygame.locals import (
 class Player(pygame.sprite.Sprite):
     def __init__(self, info, lifes, velX, velY):
         super(Player, self).__init__()
-        self.id = info.count
+        self.id = info.id
         self.lifes = lifes
         self.posX = info.posX
         self.posY = info.posY
         self.velX = velX
         self.velY = velY
-        self.rect = pygame.Rect(self.posX, self.posY, 34, 60)
+        self.surf = surf = pygame.image.load("rose.png").convert()
+        self.surf.set_colorkey((0, 0, 0), RLEACCEL)
+        self.rect = surf.get_rect(center=(self.posX, self.posY))
         self.invulnerable = 0
         self.airtime = 0
         self.bullets = pygame.sprite.Group()
@@ -31,16 +33,7 @@ class Player(pygame.sprite.Sprite):
         return Information(self.id, self.posX, self.posY)
 
     def draw(self, screen):
-        if self.invulnerable > 0:
-            surf = pygame.image.load("hirsch.png").convert()
-            surf.set_colorkey((0, 0, 0), RLEACCEL)
-            rect = surf.get_rect(center=(self.posX, self.posY))
-            screen.blit(surf, rect)
-        else:
-            surf = pygame.image.load("rose.png").convert()
-            surf.set_colorkey((0, 0, 0), RLEACCEL)
-            rect = surf.get_rect(center=(self.posX, self.posY))
-            screen.blit(surf, rect)
+        screen.blit(self.surf, self.rect)
 
     def fire(self, size):
         bullet = Bullet(size, self.rect.left + 23, self.rect.bottom - 32)
@@ -58,10 +51,8 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
         pressed_keys = pygame.key.get_pressed()
-        #self.airtime += 0.2
+        # self.airtime += 0.2
         self.velX *= 0.9
-        self.posX = self.posX + self.velX
-        self.posY = self.posY + self.velY
         self.rect.move_ip(self.velX, self.velY)
         if pressed_keys[K_UP]:
             self.velY -= 2
